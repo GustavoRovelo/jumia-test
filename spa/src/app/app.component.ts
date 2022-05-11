@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,14 +6,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-
-  // @Input op: string;
   
-  constructor(
-    private router: Router
-  ){}
+  constructor(){}
 
   ngOnInit(){
-    console.log('started');
+    
   }
 }
