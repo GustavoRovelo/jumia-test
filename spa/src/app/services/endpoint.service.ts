@@ -18,7 +18,6 @@ export class EndpointService {
   ) { }
 
   getUsers(pageConfig?: pageConfig, config?: any ){
-    let teste;
     this.apiUrl = "https://randomuser.me/api/?inc=gender,name,location,email,dob,registered,phone,picture&"
 
     pageConfig ? this.apiUrl = this.apiUrl+"?page="+pageConfig.pageIndex+"&results="+pageConfig.pageSize : null

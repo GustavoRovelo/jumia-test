@@ -1,0 +1,16 @@
+#header{
+    box-shadow: 2px 2px 5px 1px rgb(0 0 0 / 20%);   
+}
+
+#header .logo{
+    width: 100px;
+}
+
+#footer{
+    background-color: #282828;
+    min-height: 120px;
+}
+
+#footer .infos .info, #footer .infos .info a{
+    color: #fff
+}

@@ -1,13 +1,14 @@
 import {AfterViewInit, Component, ViewChild} from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
+import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
-import { EndpointService } from '../services/endpoint.service';
 import { HttpClient } from '@angular/common/http';
 
 export interface UserData {
   name: string;
-  gender: string;
+  dob: {
+    age: string;
+  };
   email: string;
   age: string;
   phone: string;
@@ -19,39 +20,6 @@ export interface pageEvents{
   pageSize: string;
 }
 
-/** Constants used to fill up our data base. */
-const FRUITS: string[] = [
-  'blueberry',
-  'lychee',
-  'kiwi',
-  'mango',
-  'peach',
-  'lime',
-  'pomegranate',
-  'pineapple',
-];
-const NAMES: string[] = [
-  'Maia',
-  'Asher',
-  'Olivia',
-  'Atticus',
-  'Amelia',
-  'Jack',
-  'Charlotte',
-  'Theodore',
-  'Isla',
-  'Oliver',
-  'Isabella',
-  'Jasper',
-  'Cora',
-  'Levi',
-  'Violet',
-  'Arthur',
-  'Mia',
-  'Thomas',
-  'Elizabeth',
-];
-
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
@@ -59,37 +27,21 @@ const NAMES: string[] = [
 })
 
 export class UsersComponent implements AfterViewInit {
-  displayedColumns: string[] = ['name', 'gender', 'location', 'email', 'age', 'registration', 'phone', 'picture'];
-  dataSource: MatTableDataSource<UserData>;
+  displayedColumns: string[] = ['name', 'gender', 'location', 'email', 'dob.age', 'registration', 'phone', 'picture'];
+  dataSource: any = new MatTableDataSource();
+  apiUrl: string = "";
+  pageConfig: any = {} as PageEvent;
+  teste2: any;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(
-    private endpointService: EndpointService,
     private httpClient: HttpClient
-  ) {
-    // Create 100 users
-    // const users = Array.from({length: 50}, (_, k) => createNewUser(k + 1));
+  ) { }
 
-    // Assign the data to the data source for the table to render
-    this.dataSource = new MatTableDataSource();
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-
-    
-    let page = {} as pageEvents;
-    page.pageIndex = "0"
-    page.pageSize = "5"
-    
-    let users = this.endpointService.getUsers(page);
-
-    console.log('users: ', users)
-
-    this.dataSource = new MatTableDataSource();
+  ngAfterViewInit() {    
+    this.getUsers();
   }
 
   applyFilter(event: Event) {
@@ -99,18 +51,30 @@ export class UsersComponent implements AfterViewInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-
-    console.log("filtro: ", this.dataSource)
   }
 
   pageChange(event: any) {
-    let page = {} as pageEvents;
     event = event as pageEvents;
 
-    page.pageIndex = event.pageIndex;
-    page.pageSize = event.pageSize;
+    this.pageConfig.pageIndex = event.pageIndex;
+    this.pageConfig.pageSize = event.pageSize;
 
-    this.endpointService.getUsers(page);
+    this.getUsers();
+  }
+
+  getUsers(){
+    this.apiUrl = "https://randomuser.me/api/?inc=gender,name,location,email,dob,registered,phone,picture&results=100&seed=abc&"
+
+    this.pageConfig ? this.apiUrl = this.apiUrl+"?page="+this.pageConfig.pageIndex : null
+
+    this.httpClient.get(this.apiUrl).subscribe((response:any) => {
+      this.teste2 =  response.results;
+      this.dataSource = new MatTableDataSource(this.teste2);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      }
+    )
+
   }
 
   csv(){
@@ -125,18 +89,3 @@ export class UsersComponent implements AfterViewInit {
     )
   }
 }
-
-// function createNewUser(id: number): UserData {
-//   const name =
-//     NAMES[Math.round(Math.random() * (NAMES.length - 1))] +
-//     ' ' +
-//     NAMES[Math.round(Math.random() * (NAMES.length - 1))].charAt(0) +
-//     '.';
-
-//   return {
-//     id: id.toString(),
-//     name: name,
-//     progress: Math.round(Math.random() * 50).toString(),
-//     fruit: FRUITS[Math.round(Math.random() * (FRUITS.length - 1))],
-//   };
-// }
